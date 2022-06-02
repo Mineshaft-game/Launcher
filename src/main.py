@@ -1,6 +1,7 @@
 import sys
+import webbrowser
 
-from PyQt5.QtCore import QSize, Qt,  QUrl
+from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtGui import *
@@ -17,7 +18,7 @@ class MainWindow(QMainWindow):
         tabs.setTabPosition(QTabWidget.North)
         tabs.setMovable(True)
         
-        tabs.addTab(self.main_tab(),  "Launcher")
+        tabs.addTab(self.main_tab(),  "News")
 
         self.setCentralWidget(tabs)
         
@@ -25,12 +26,36 @@ class MainWindow(QMainWindow):
         widget = QWidget()
         layout = QGridLayout()
         
-        button = QWebEngineView()
-        button.load(QUrl("https://mineshaft-game.github.io"))
-        menu_spacer = QSpacerItem(100, 110,  QSizePolicy.Expanding, QSizePolicy.Minimum)
+        webview = QWebEngineView()
+        webview.load(QUrl("https://mineshaft-game.github.io"))
+        
+        
+        menu_spacer = QSpacerItem(100, 10,  QSizePolicy.Expanding,  QSizePolicy.Minimum)
+        
+        website_button = QPushButton("Mineshaft")
+        website_button.clicked.connect(lambda: webbrowser.open("mineshaft-game.github.io"))
+        
+        bug_button = QPushButton("Bug tracker")
+        bug_button.clicked.connect(lambda: webbrowser.open("github.com/mineshaft-game/mineshaft/issues"))
+        
+        play_button = QPushButton("PLAY")
+        
+        version_box = QComboBox()
+        version_box2 = QComboBox()
 
-        #layout.addItem(menu_spacer,  0, 0)
-        layout.addWidget(button,  0, 1)
+        
+        layout.addWidget(webview,  0, 0,  5,  6)
+        layout.addItem(menu_spacer,  4, 0)
+        
+        #layout.addWidget(website_button,  0, 4)
+        #layout.addWidget(bug_button,  1, 4)
+        
+        layout.addWidget(version_box,  5, 0,  1,  1)
+        layout.addWidget(version_box2,  5, 3)
+        
+        layout.addWidget(play_button,  5,1)
+        
+        
         widget.setLayout(layout)
         
         return widget
