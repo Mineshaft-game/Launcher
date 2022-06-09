@@ -33,8 +33,9 @@ class Downloader(QThread):
 
         try:
             os.makedirs(self._filename)
-        except: pass
-        self._filename = os.path.join(self._filename,  "main.AppImage")
+        except:
+            pass
+        self._filename = os.path.join(self._filename, "main.AppImage")
         readBytes = 0
         chunkSize = 1024
         # Open the URL address.
@@ -73,37 +74,41 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Mineshaft Launcher")
 
         self.versions = self.get_versions()
-        
+
         tabs = QTabWidget()
         tabs.setTabPosition(QTabWidget.North)
         tabs.setMovable(True)
-        
-        tabs.addTab(self.main_tab(),  "News")
+
+        tabs.addTab(self.main_tab(), "News")
 
         self.setCentralWidget(tabs)
+
     def downloadSucceeded(self):
-        self.progress_bar.setFormat('download complete')
+        self.progress_bar.setFormat("download complete")
+
     def downloadFinished(self):
-        self.progress_bar.setFormat('download finished')
+        self.progress_bar.setFormat("download finished")
         self.play_button.setEnabled(True)
-        
-        
+
     def main_tab(self):
         widget = QWidget()
         layout = QGridLayout()
-        
+
         webview = QWebEngineView()
         webview.load(QUrl("https://mineshaft-game.github.io/changelog"))
-        
-        
-        menu_spacer = QSpacerItem(100, 10,  QSizePolicy.Expanding,  QSizePolicy.Minimum)
-        
+
+        menu_spacer = QSpacerItem(100, 10, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
         website_button = QPushButton("Mineshaft")
-        website_button.clicked.connect(lambda: webbrowser.open("mineshaft-game.github.io"))
-        
+        website_button.clicked.connect(
+            lambda: webbrowser.open("mineshaft-game.github.io")
+        )
+
         bug_button = QPushButton("Bug tracker")
-        bug_button.clicked.connect(lambda: webbrowser.open("github.com/mineshaft-game/mineshaft/issues"))
-        
+        bug_button.clicked.connect(
+            lambda: webbrowser.open("github.com/mineshaft-game/mineshaft/issues")
+        )
+
         self.play_button = QPushButton("PLAY")
         self.play_button.clicked.connect(self.run_mineshaft)
 
@@ -112,64 +117,69 @@ class MainWindow(QMainWindow):
         profile_label = QLabel("Profile:")
         profile_box = QComboBox()
 
-
         profile_layout.addWidget(profile_label)
         profile_layout.addWidget(profile_box)
         profile_widget.setLayout(profile_layout)
 
-
         self.version_box = QComboBox()
         for version in self.get_versions():
             self.version_box.addItem(version)
-            
+
         self.progress_bar = QProgressBar()
 
-        
-        layout.addWidget(webview,  0, 0,  5,  6)
-        #layout.addItem(menu_spacer,  4, 0)
-        
-        #layout.addWidget(website_button,  0, 4)
-        #layout.addWidget(bug_button,  1, 4)
-        
-        layout.addWidget(profile_widget,  5, 0)
-        #layout.addWidget(profile_label, 5,0)
-        layout.addWidget(self.version_box,  5, 3)
-        
-        layout.addWidget(self.play_button,  5,2)
-        layout.addWidget(self.progress_bar,  5,4)
-        
-        
+        layout.addWidget(webview, 0, 0, 5, 6)
+        # layout.addItem(menu_spacer,  4, 0)
+
+        # layout.addWidget(website_button,  0, 4)
+        # layout.addWidget(bug_button,  1, 4)
+
+        layout.addWidget(profile_widget, 5, 0)
+        # layout.addWidget(profile_label, 5,0)
+        layout.addWidget(self.version_box, 5, 3)
+
+        layout.addWidget(self.play_button, 5, 2)
+        layout.addWidget(self.progress_bar, 5, 4)
+
         widget.setLayout(layout)
-        
+
         return widget
-        
+
     def run_mineshaft(self):
         try:
-            subprocess.run(f".mineshaft/versions/{self.version_box.currentText()}/main.AppImage")
+            subprocess.run(
+                f".mineshaft/versions/{self.version_box.currentText()}/main.AppImage"
+            )
         except Exception:
             self.download_version(self.version_box.currentText())
-        
+
     def get_versions(self):
         try:
-            return json.loads(requests.get("https://mineshaft-game.github.io/launcher.json").text)
+            return json.loads(
+                requests.get("https://mineshaft-game.github.io/launcher.json").text
+            )
         except:
-            return json.loads(requests.get("https://raw.githubusercontent.com/Mineshaft-game/mineshaft-game.github.io/main/launcher.json").text)
-        
-    def download_version(self,  version):
+            return json.loads(
+                requests.get(
+                    "https://raw.githubusercontent.com/Mineshaft-game/mineshaft-game.github.io/main/launcher.json"
+                ).text
+            )
+
+    def download_version(self, version):
         if platform.system() == "Linux":
             system = "linux"
         elif platform.system() == "Darwin":
-            system="macos"
+            system = "macos"
         elif platform.system() == "Windows":
-            system="windows"
-            
-        
-        
+            system = "windows"
+
         # Run the download in a new thread.
         self.progress_bar.setFormat("Starting Download.")
         self.play_button.setEnabled(False)
-        try: 
-            self.downloader = Downloader(self.versions[version][system][platform.machine()], os.path.join(".mineshaft",  "versions",  f"{version}"))
+        try:
+            self.downloader = Downloader(
+                self.versions[version][system][platform.machine()],
+                os.path.join(".mineshaft", "versions", f"{version}"),
+            )
         except:
             msg_box = QMessageBox()
             msg_box.setText("This version isn't compaptible with your computer.")
@@ -191,7 +201,6 @@ class MainWindow(QMainWindow):
             self.progress_bar.resetFormat()
         except:
             self.progress_bar.setFormat("Download Failed!")
-    
 
 
 if __name__ == "__main__":
